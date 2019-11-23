@@ -43,6 +43,7 @@ void FirstFollowHandler::ReadGrammarFromFile()
 
 void FirstFollowHandler::ShowGrammar()
 {
+	ReadGrammarFromFile();
 	cout << "\n----- RULES -----" << endl;
 	for (int i=0; i<leftParts.size(); i++)
 	{
@@ -54,7 +55,20 @@ void FirstFollowHandler::ShowGrammar()
 		}
 		cout << endl;
 	}
+}
 
+void FirstFollowHandler::GetSets()
+{
+	//не сделано: удалить из firsts нетерминалы
+	GetFirsts();
+	ShowFirsts();
+	GetFollows();
+	ShowFollows();
+}
+
+
+void FirstFollowHandler::GetUniqueRuleHeads()
+{
 	//список уникальных левых частей
 	cout << "unique heads: ";
 	for (auto head : leftParts)
@@ -66,6 +80,11 @@ void FirstFollowHandler::ShowGrammar()
 		}
 	}
 	cout << endl;
+}
+
+void FirstFollowHandler::GetFirsts()
+{
+	GetUniqueRuleHeads();
 
 	vector<bool> fstStatus;
 	for (size_t i = 0; i < uniqueRuleHeads.size(); i++)
@@ -73,8 +92,6 @@ void FirstFollowHandler::ShowGrammar()
 		fstStatus.push_back(true);
 	}
 
-
-	
 	//первоначальный список first
 	for (size_t i = 0; i < uniqueRuleHeads.size(); i++)
 	{
@@ -99,10 +116,11 @@ void FirstFollowHandler::ShowGrammar()
 	cout << "fst status: ";
 	for (auto st : fstStatus)
 	{
-	cout << st << " ";
+		cout << st << " ";
 	}
 	cout << endl;
 
+	//прохождение по нетерминалам в множествах first
 	for (size_t idx = 0; idx < fstStatus.size(); idx++)
 	{
 		if (fstStatus[idx] == false)
@@ -120,21 +138,6 @@ void FirstFollowHandler::ShowGrammar()
 		}
 	}
 
-	ShowFirsts();
-}
-
-void FirstFollowHandler::ShowFirsts()
-{
-	cout << "-----Firsts-----" << endl;
-	for (size_t i = 0; i < uniqueRuleHeads.size(); i++)
-	{
-		cout << uniqueRuleHeads[i]<<" = ";
-		for (size_t j = 0; j < firsts[i].size(); j++)
-		{
-			cout << " " << firsts[i][j];
-		}
-		cout << endl;
-	}
 }
 
 void FirstFollowHandler::FindFstInNextRule(string e, int idx, vector<bool>& fstStatus)
@@ -159,6 +162,151 @@ void FirstFollowHandler::FindFstInNextRule(string e, int idx, vector<bool>& fstS
 			{
 				//cout << " -> " << firsts[i][0];
 				FindFstInNextRule(firsts[i][0], idx, fstStatus);
+			}
+		}
+	}
+}
+
+void FirstFollowHandler::ShowFirsts()
+{
+	cout << "-----Firsts-----" << endl;
+	for (size_t i = 0; i < uniqueRuleHeads.size(); i++)
+	{
+		cout << uniqueRuleHeads[i] << " = ";
+		for (size_t j = 0; j < firsts[i].size(); j++)
+		{
+			if (find(uniqueRuleHeads.begin(), uniqueRuleHeads.end(), firsts[i][j]) == uniqueRuleHeads.end())
+				cout << " " << firsts[i][j];
+		}
+		cout << endl;
+	}
+}
+
+
+void FirstFollowHandler::GetFollows()
+{
+	vector<bool> flwStatus;
+	for (size_t i = 0; i < uniqueRuleHeads.size(); i++)
+	{
+		flwStatus.push_back(true);
+	}
+
+	for (size_t i = 0; i < uniqueRuleHeads.size(); i++)
+	{
+		if (i == 0)
+		{
+			flw.push_back("$");
+		}
+
+		for (size_t j = 0; j < rightParts.size(); j++)
+		{
+			if (rightParts[j].size() != 1)
+			{
+				for (size_t k = 1; k < rightParts[j].size(); k++)
+				{
+					if (rightParts[j][k] == uniqueRuleHeads[i])
+					{
+						if (k != rightParts[j].size() - 1)
+						{
+							if (find(uniqueRuleHeads.begin(), uniqueRuleHeads.end(), rightParts[j][k + 1]) == uniqueRuleHeads.end())
+								flw.push_back(rightParts[j][k + 1]);
+							
+							else
+							{
+								auto it = find(uniqueRuleHeads.begin(), uniqueRuleHeads.end(), rightParts[j][k + 1]);
+								auto index = distance(uniqueRuleHeads.begin(), it);
+								for (size_t m = 0; m < firsts[index].size(); m++)
+								{
+									if (firsts[index][m] != "#")
+									{
+										flw.push_back(firsts[index][m]);
+									}
+									else
+									{
+										flw.push_back(leftParts[j]);
+										flwStatus[i] = false;
+									}
+								}
+							}
+						}
+						else
+						{
+							flw.push_back(leftParts[j]);
+							flwStatus[i] = false;
+						}
+					}
+				}
+			}
+		}
+		follows.push_back(flw);
+		flw.clear();
+
+	}
+	cout << "flw status: ";
+	for (auto st : flwStatus)
+	{
+		cout << st << " ";
+	}
+	cout << endl;
+	
+
+	//прохождение по нетерминалам в множествах first
+	for (size_t idx = 0; idx < flwStatus.size(); idx++)
+	{
+		if (flwStatus[idx] == false)
+		{
+			for (auto e : follows.at(idx))
+			{
+				if (find(uniqueRuleHeads.begin(), uniqueRuleHeads.end(), e) != uniqueRuleHeads.end())
+				{
+					//cout << "From " << uniqueRuleHeads[idx] << " go to " << e;
+					FindFlwInNextRule(e, idx, flwStatus);
+					if (flwStatus[idx] == true)
+						break;
+				}
+			}
+		}
+	}
+}
+
+
+void FirstFollowHandler::ShowFollows()
+{
+	cout << "-----Follows-----" << endl;
+	for (size_t i = 0; i < uniqueRuleHeads.size(); i++)
+	{
+		cout << uniqueRuleHeads[i] << " = ";
+		for (size_t j = 0; j < follows[i].size(); j++)
+		{
+			if (find(uniqueRuleHeads.begin(), uniqueRuleHeads.end(), follows[i][j]) == uniqueRuleHeads.end())
+				cout << " " << follows[i][j];
+		}
+		cout << endl;
+	}
+}
+
+void FirstFollowHandler::FindFlwInNextRule(string e, int idx, vector<bool>& flwStatus)
+{
+	for (size_t i = 0; i < uniqueRuleHeads.size(); i++)
+	{
+		if (uniqueRuleHeads[i] == e)
+		{
+			if (flwStatus[i] == true)
+			{
+				//cout << " = ";
+				for (auto flw : follows[i])
+				{
+					follows[idx].push_back(flw);
+					//cout << fst << " ";
+				}
+				flwStatus.at(idx) = true;
+				//cout << endl;
+				break;
+			}
+			else
+			{
+				//cout << " -> " << firsts[i][0];
+				FindFstInNextRule(follows[i][0], idx, flwStatus);
 			}
 		}
 	}

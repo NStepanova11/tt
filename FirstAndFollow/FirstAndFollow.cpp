@@ -5,8 +5,8 @@ int main()
 {
 	FirstFollowHandler gr;
 	// 1 - прочитать грамматику
-	gr.ReadGrammarFromFile();
 	gr.ShowGrammar();
+	gr.GetSets();
 	// 2 - найти направляющие множества
 	//gr.GetGuideSets();
 	//gr.ShowGuideSets();
