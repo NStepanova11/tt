@@ -2,7 +2,7 @@
 
 void FirstFollowHandler::ReadGrammarFromFile()
 {
-	ifstream fin("g.txt");
+	ifstream fin("testGrammar.txt");
 	string line;
 	stringstream ss;
 	int lineNum = 0;
@@ -138,6 +138,20 @@ void FirstFollowHandler::GetFirsts()
 		}
 	}
 
+	for (size_t i = 0; i < firsts.size(); i++)
+	{
+		for (auto nt : uniqueRuleHeads)
+		{
+			while (find(firsts[i].begin(), firsts[i].end(), nt) != firsts[i].end())
+			{
+				auto i_nt = find(firsts[i].begin(), firsts[i].end(), nt);
+				//if (i_nt != firsts[i].end())
+				{
+					firsts[i].erase(i_nt);
+				}
+			}
+		}
+	}
 }
 
 void FirstFollowHandler::FindFstInNextRule(string e, int idx, vector<bool>& fstStatus)
@@ -175,7 +189,7 @@ void FirstFollowHandler::ShowFirsts()
 		cout << uniqueRuleHeads[i] << " = ";
 		for (size_t j = 0; j < firsts[i].size(); j++)
 		{
-			if (find(uniqueRuleHeads.begin(), uniqueRuleHeads.end(), firsts[i][j]) == uniqueRuleHeads.end())
+			//if (find(uniqueRuleHeads.begin(), uniqueRuleHeads.end(), firsts[i][j]) == uniqueRuleHeads.end())
 				cout << " " << firsts[i][j];
 		}
 		cout << endl;
@@ -267,6 +281,22 @@ void FirstFollowHandler::GetFollows()
 			}
 		}
 	}
+
+	for (size_t i = 0; i < follows.size(); i++)
+	{
+		for (auto nt : uniqueRuleHeads)
+		{
+			while (find(follows[i].begin(), follows[i].end(), nt) != follows[i].end())
+			{
+				auto i_nt = find(follows[i].begin(), follows[i].end(), nt);
+				//if (i_nt != firsts[i].end())
+				{
+					follows[i].erase(i_nt);
+				}
+			}
+		}
+	}
+
 }
 
 
@@ -278,7 +308,7 @@ void FirstFollowHandler::ShowFollows()
 		cout << uniqueRuleHeads[i] << " = ";
 		for (size_t j = 0; j < follows[i].size(); j++)
 		{
-			if (find(uniqueRuleHeads.begin(), uniqueRuleHeads.end(), follows[i][j]) == uniqueRuleHeads.end())
+			//if (find(uniqueRuleHeads.begin(), uniqueRuleHeads.end(), follows[i][j]) == uniqueRuleHeads.end())
 				cout << " " << follows[i][j];
 		}
 		cout << endl;
