@@ -2,7 +2,7 @@
 
 void FirstFollowHandler::ReadGrammarFromFile()
 {
-	ifstream fin("testGrammar.txt");
+	ifstream fin("g.txt");
 	string line;
 	stringstream ss;
 	int lineNum = 0;
@@ -64,6 +64,16 @@ void FirstFollowHandler::GetSets()
 	ShowFirsts();
 	GetFollows();
 	ShowFollows();
+
+	cout << "Empty firsts: ";
+	for (size_t i = 0; i < firstContainEmpty.size(); i++)
+	{
+		cout << firstContainEmpty[i] << " ";
+	}
+	cout << endl;
+
+	GetPredicts();
+	ShowPredicts();
 }
 
 
@@ -80,6 +90,11 @@ void FirstFollowHandler::GetUniqueRuleHeads()
 		}
 	}
 	cout << endl;
+
+	for (size_t i = 0; i < uniqueRuleHeads.size(); i++)
+	{
+		firstContainEmpty.push_back(false);
+	}
 }
 
 void FirstFollowHandler::GetFirsts()
@@ -101,6 +116,8 @@ void FirstFollowHandler::GetFirsts()
 			if (leftParts[j] == uniqueRuleHeads[i])
 			{
 				fst.push_back(rightParts[j][0]);
+				if (rightParts[j][0] == "#")
+					firstContainEmpty[i] = true;
 				//cout << rightParts[j][0] << " ";
 				if (find(leftParts.begin(), leftParts.end(), rightParts[j][0]) != leftParts.end())
 				{
@@ -165,6 +182,8 @@ void FirstFollowHandler::FindFstInNextRule(string e, int idx, vector<bool>& fstS
 				//cout << " = ";
 				for (auto fst : firsts[i])
 				{
+					if (fst == "#")
+						firstContainEmpty[i] = true;
 					firsts[idx].push_back(fst);
 					//cout << fst << " ";
 				}
@@ -299,6 +318,53 @@ void FirstFollowHandler::GetFollows()
 
 }
 
+void FirstFollowHandler::GetPredicts()
+{
+	vector<string> s;
+	for (size_t i = 0; i < uniqueRuleHeads.size(); i++)
+	{
+
+		for (auto lexem : firsts[i])
+		{
+			if (lexem != "#")
+				s.push_back(lexem);
+		}
+
+		if (firstContainEmpty[i] == true)
+		{
+			for (auto lexem : follows[i])
+			{
+				s.push_back(lexem);
+			}
+		}
+
+		predicts.push_back(s);
+		s.clear();
+	}
+	
+	/*
+	for (size_t i = 0; i < firstContainEmpty.size(); i++)
+	{
+		if (firstContainEmpty[i] == true)
+		{
+			for (size_t k = 0; k < follows[i].size(); k++)
+			{
+				s.push_back(follows[i][k]);
+			}
+		}
+		else
+		{
+			for (size_t k = 0; k < follows[i].size(); k++)
+			{
+				s.push_back(firsts[i][k]);
+			}
+		}
+		predicts.push_back(s);
+		s.clear();
+	}
+	*/
+}
+
 
 void FirstFollowHandler::ShowFollows()
 {
@@ -310,6 +376,21 @@ void FirstFollowHandler::ShowFollows()
 		{
 			//if (find(uniqueRuleHeads.begin(), uniqueRuleHeads.end(), follows[i][j]) == uniqueRuleHeads.end())
 				cout << " " << follows[i][j];
+		}
+		cout << endl;
+	}
+}
+
+void FirstFollowHandler::ShowPredicts()
+{
+	cout << "\n----- Predicts -----" << endl;
+	for (int i = 0; i < uniqueRuleHeads.size(); i++)
+	{
+		cout << uniqueRuleHeads[i] << " -> ";
+		int n = 0;
+		for (auto lexem : predicts[i])
+		{
+			cout << " " << lexem;
 		}
 		cout << endl;
 	}

@@ -18,8 +18,10 @@ private:
 	string startNoTerminal;
 	vector<string> fst;
 	vector<vector<string>> firsts;
+	vector<bool> firstContainEmpty;
 	vector<string> flw;
 	vector<vector<string>> follows;
+	vector<vector<string>> predicts;
 	vector<string> uniqueRuleHeads;
 	void ReadGrammarFromFile();
 
@@ -30,10 +32,13 @@ private:
 	void FindFlwInNextRule(string e, int idx, vector<bool>& fstStatus);
 
 	void GetFollows();
+	void GetPredicts();
+
 public:
 	void ShowGrammar();
 	void GetSets();
 	void ShowFirsts();
 	void ShowFollows();
+	void ShowPredicts();
 };
 
