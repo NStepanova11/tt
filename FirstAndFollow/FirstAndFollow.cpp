@@ -1,16 +1,13 @@
-﻿#include "CGrammarReader.h"
-#include "FirstFollowHandler.h"
-
+﻿#include "ll1.h"
 int main()
 {
-	FirstFollowHandler gr;
-	// 1 - прочитать грамматику
-	gr.ShowGrammar();
-	gr.GetSets();
+
 	// 2 - найти направляющие множества
 	//gr.GetGuideSets();
 	//gr.ShowGuideSets();
-	
+	ll1 ll1;
+	ll1.BuildTable();
+	ll1.ShowTable();
 	system("pause");
 	return 0;
 }

@@ -23,7 +23,7 @@ private:
 	vector<vector<string>> follows;
 	vector<vector<string>> predicts;
 	vector<string> uniqueRuleHeads;
-	void ReadGrammarFromFile();
+	unordered_map<string, vector<string>> predictsList;
 
 	void GetUniqueRuleHeads();
 
@@ -35,10 +35,14 @@ private:
 	void GetPredicts();
 
 public:
+	void ReadGrammarFromFile();
 	void ShowGrammar();
-	void GetSets();
+	unordered_map<string, vector<string>> GetSets();
 	void ShowFirsts();
 	void ShowFollows();
 	void ShowPredicts();
+	vector<string> GetLeftParts();
+	vector<vector<string>> GetRightParts();
+
 };
 
