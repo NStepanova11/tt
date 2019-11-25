@@ -2,7 +2,7 @@
 
 void FirstFollowHandler::ReadGrammarFromFile()
 {
-	ifstream fin("g.txt");
+	ifstream fin("testGrammar.txt");
 	string line;
 	stringstream ss;
 	int lineNum = 0;

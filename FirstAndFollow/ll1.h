@@ -17,14 +17,15 @@ struct line {
 	string lexem;
 	vector<string> guideSet;
 	int jump;
+	bool left;
 };
 
 class ll1
 {
 private: 
 	vector<line> table;
-	void AddLine(string lexem, vector<string> guideSet, int jump);
-
+	void AddLine(string lexem, vector<string> guideSet, int jump, bool left);
+	void UpdateLinksForLeft(vector<string> leftParts);
 public:
 	void BuildTable();
 	void ShowTable();
